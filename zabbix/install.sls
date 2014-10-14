@@ -78,6 +78,56 @@ addsudoers:
     - require:
       - pkg: zabbix-agent
 {% endif %}
+{% if salt['cmd.run']("ps -ef | grep /home/mysql/bin/mysqld|grep -v grep|wc -l") != "0" %}
+perl-libwww-perl:
+  pkg:
+    - installed
+perl-Crypt-SSLeay:
+  pkg:
+    - installed
+perl-Digest-SHA:
+  pkg:
+    - installed
+perl-DBD-MySQL:
+  pkg:
+    - installed
+perl-File-Which:
+  pkg:
+    - installed
+zabbix-sender:
+  pkg:
+    - installed
+modifyconf1:
+  file.sed:
+    - name: /opt/zabbix/lldscripts/fromdual_mysql/etc/FromDualMySQLagent.conf
+    - before: 10.27.38.201
+    - after: {{ grains['id'] }}
+    - require:
+      - pkg: perl-libwww-perl
+      - pkg: perl-Crypt-SSLeay
+      - pkg: perl-Digest-SHA
+      - pkg: perl-DBD-MySQL
+      - pkg: perl-File-Which
+      - pkg: zabbix-sender
+modifyconf2:
+  file.sed:
+    - name: /opt/zabbix/lldscripts/fromdual_mysql/etc/FromDualMySQLagent.conf
+    - before: ZabbixServer = 192.168.90.18
+    - after: ZabbixServer = {{ grains['zabbix_proxy'] }}
+    - require:
+      - pkg: perl-libwww-perl
+      - pkg: perl-Crypt-SSLeay
+      - pkg: perl-Digest-SHA
+      - pkg: perl-DBD-MySQL
+      - pkg: perl-File-Which
+      - pkg: zabbix-sender
+changemode:
+  cmd.run:
+    - name: chown -R zabbix.zabbix zabbix;chmod 755 /opt/zabbix/lldscripts/fromdual_mysql/FromDualMySQLagent.pl
+    - cwd: /opt/
+    - watch:
+      - file: /opt/zabbix/lldscripts/fromdual_mysql/etc/FromDualMySQLagent.conf
+{% endif %}
 restart:
   cmd.run:
 {% if grains['os_family'] == "RedHat" %}
