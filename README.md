@@ -1,8 +1,7 @@
 saltstack
 =========
 
-saltstack
-
+自定义grains
 
 =========
 
