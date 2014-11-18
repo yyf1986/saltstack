@@ -11,3 +11,7 @@ pillar功能
 自定义模块
 =========
 1、自定义了ihs模块，was、jboss生成javacore模块
+
+tools
+========
+根据salt python api开发的一些小工具
